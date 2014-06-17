@@ -21,5 +21,13 @@ agent.Time("myapp.expensive_operation", () => LongRunningOperation());
 agent.Notice("Server maintenance window", 3600);
 ```
 
+Mono
+====
+You may need to install `Common.logging` assemblies before attempting to compile this package. You can install them in your project with via NuGet with the following command:
+
+```
+mono --runtime=v4.0 /path/to/NuGet.exe install Instrumental.NET/packages.config -OutputDirectory packages
+```
+
 [Instrumental]:http://instrumentalapp.com
 [Common.logging]:http://netcommon.sourceforge.net/
