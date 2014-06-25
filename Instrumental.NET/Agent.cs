@@ -104,7 +104,7 @@ namespace Instrumental.NET
 
         private bool ValidateMetricName(String metricName)
         {
-            var validMetric = Regex.IsMatch(metricName, @"^([\d\w\-_])+\.*[\d\w\-_]+$", RegexOptions.IgnoreCase);
+            var validMetric = Regex.IsMatch(metricName, @"^[\d\w\-_]+(\.[\d\w\-_]+)+$", RegexOptions.IgnoreCase);
 
             if (validMetric) return true;
 

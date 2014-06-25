@@ -30,7 +30,7 @@ namespace Instrumental.NET
         private readonly string _apiKey;
         private readonly BlockingCollection<Tuple<String, AutoResetEvent>> _messages = new BlockingCollection<Tuple<String, AutoResetEvent>>();
         private Tuple<String, AutoResetEvent> _currentCommand;
-        private BackgroundWorker _worker;
+        private Thread _worker;
         private bool _queueFullWarned;
         private static readonly ILog _log = LogManager.GetCurrentClassLogger();
 
@@ -74,14 +74,13 @@ namespace Instrumental.NET
 
         private void StartBackgroundWorker()
         {
-            _worker = new BackgroundWorker();
-            _worker.DoWork += WorkerOnDoWork;
-            _worker.RunWorkerAsync();
+            _worker = new Thread(WorkerLoop) {IsBackground = true};
+            _worker.Start();
         }
 
-        private void WorkerOnDoWork(object sender, DoWorkEventArgs doWorkEventArgs)
+        private void WorkerLoop()
         {
-            while (!_worker.CancellationPending)
+            while (true)
             {
                 Socket socket = null;
                 var failures = 0;
@@ -110,7 +109,7 @@ namespace Instrumental.NET
 
         private void SendQueuedMessages(Socket socket)
         {
-            while (!_worker.CancellationPending)
+            while (true)
             {
                 if (_currentCommand == null) _currentCommand = _messages.Take();
                 var message = _currentCommand.Item1;
@@ -129,7 +128,6 @@ namespace Instrumental.NET
 
         private void Authenticate(Socket socket)
         {
-            var buf = new byte[3];
             var data = System.Text.Encoding.ASCII.GetBytes("hello version 1.0\n");
             socket.Send(data);
             data = System.Text.Encoding.ASCII.GetBytes(String.Format("authenticate {0}\n", _apiKey));
